@@ -24,15 +24,7 @@ pipeline {
         
        
         
-        stage('Sonarqube') {
-            steps {
-                withSonarQubeEnv('sonar'){
-                   sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=EKART \
-                   -Dsonar.java.binaries=. \
-                   -Dsonar.projectKey=EKART '''
-               }
-            }
-        }
+        
         
         stage('Build') {
             steps {
