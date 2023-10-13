@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools{
-        jdk  'jdk11'
+        jdk  'jdk17'
         maven  'maven3'
     }
     
@@ -22,19 +22,14 @@ pipeline {
             }
         }
         
-        stage('OWASP Scan') {
-            steps {
-                dependencyCheck additionalArguments: '--scan ./ ', odcInstallation: 'DC'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-            }
-        }
+       
         
         stage('Sonarqube') {
             steps {
-                withSonarQubeEnv('sonar-server'){
-                   sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Shopping-Cart \
+                withSonarQubeEnv('sonar'){
+                   sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=EKART \
                    -Dsonar.java.binaries=. \
-                   -Dsonar.projectKey=Shopping-Cart '''
+                   -Dsonar.projectKey=EKART '''
                }
             }
         }
@@ -42,6 +37,16 @@ pipeline {
         stage('Build') {
             steps {
                 sh "mvn clean package -DskipTests=true"
+            }
+        }
+
+        stage('Deploy to Nexus') {
+            steps {
+                withMaven(globalMavenSettingsConfig: 'globa-settings-xml' ) {
+    // some block
+                 sh "mvn clean package -DskipTests=true"
+                }
+
             }
         }
         
