@@ -21,6 +21,12 @@ pipeline {
                 sh "mvn clean compile -DskipTests=true"
             }
         }
+
+        stage('TRIVI FS SCAN') {
+            steps {
+                sh "trivy fs  ."
+            }
+        }
         
        
         
@@ -42,14 +48,29 @@ pipeline {
             }
         }
         
-        stage('Docker Build & Push') {
+        stage('Build & Tag Docker Image') {
             steps {
                 script{
-                    withDockerRegistry(credentialsId: '2fe19d8a-3d12-4b82-ba20-9d22e6bf1672', toolName: 'docker') {
-                        
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
                         sh "docker build -t shopping-cart -f docker/Dockerfile ."
-                        sh "docker tag  shopping-cart adijaiswal/shopping-cart:latest"
+                        sh "docker tag  shopping-cart kar98z/shopping-cart:latest"
                         sh "docker push adijaiswal/shopping-cart:latest"
+
+                    }
+                    
+                        
+                    }
+                }
+            }
+            stage('Docker Push') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        sh "docker push kar98z/shopping-cart:latest"
+
+                    }
+                    
+                        
                     }
                 }
             }
